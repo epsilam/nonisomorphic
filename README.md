@@ -4,4 +4,6 @@ Small library of graph theory related functions that finds all the different und
 This is an improved version of a small script used for a school project, originally inspired by a textbook exercise: 
 >How many non-isomorphic graphs are there with 4 vertices and 3 edges?
 
-Usage: call `nonIsomorphicGraphs(v, e)` for `v` vertices and `e` edges in `noniso.py`. The file `srclib.py` contains some useful functions that don't necessarily have anything to do with graph theory but are necessary nonetheless.
+Usage: call `nonIsomorphicGraphs(v, e)` for `v` vertices and `e` edges in `noniso.py`. This will return the adjacency matrices for each of the non-isomorphic graphs, the number of non-isomorphic graphs, as well as the time elapsed.
+
+The file `srclib.py` contains some useful functions that don't necessarily have anything to do with graph theory but are necessary nonetheless.
