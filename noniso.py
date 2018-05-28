@@ -4,7 +4,12 @@ from itertools import permutations
 
 class Graph:
     '''
-    This class is instantiated with the binary list representation for each graph. A graph is identified by its reduced list representation, denoted self.reduced. This is basically the lower triangle of its adjacency matrix squashed into one list, while the binary list representation is the reduced list expanded into stars-and-bars notation to make it easier to generate all graphs, as we can more efficiently generate all lists of arbitrary length containing an arbitrary number of 1s. 
+    This class is instantiated with the binary list representation for each graph.
+    A graph is identified by its reduced list representation, denoted self.reduced.
+    This is basically the lower triangle of its adjacency matrix squashed into one list,
+    while the binary list representation is the reduced list expanded into stars-and-bars
+    notation to make it easier to generate all graphs, as we can more efficiently
+    generate all lists of arbitrary length containing an arbitrary number of 1s.
     '''
 
     def __init__(self, binlist):
