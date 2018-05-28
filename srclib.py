@@ -1,6 +1,7 @@
 '''
-
+A library of some useful functions that don't necessarily have anything to do with graphs.
 '''
+
 #Wrapper function for timing purposes.
 import timeit
 def timer(func):
@@ -12,6 +13,9 @@ def timer(func):
         return returnVal
     return f
 
+#The functions indexOfLastOne and binarySequences are slightly modified based on the work of a kind reddit user who did not ask to be credited personally.
+
+#Finds index of last one in an array.
 def indexOfLastOne(arr, below):
     for i in range(below,-1,-1):
         if(arr[i] == 1):
