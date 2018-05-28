@@ -12,21 +12,25 @@ class Graph:
     generate all lists of arbitrary length containing an arbitrary number of 1s.
     '''
 
-    def __init__(self, binlist):
+    def __init__(self, binlist=None, reduced=None):
         #=== Store the binary representation
-        self.binaryRep = binlist
+        self.binlist = binlist
         
         #=== Determine reduced list representation
-        reducedList = []
-        counter = 0
-        sequence = self.binaryRep + [1] #Since it counts 0s before each 1, we need to make sure there is a 1 at the end so that the last couple of 0s are counted.
-        for digit in sequence:
-            if digit == 0:
-                counter += 1
-            elif digit == 1:
-                reducedList = reducedList + [counter]
-                counter = 0
-        self.reduced = reducedList
+        if reduced == None and binlist != None:
+            reducedList = []
+            counter = 0
+            sequence = self.binlist + [1] #Since it counts 0s before each 1, we need to make sure there is a 1 at the end so that the last couple of 0s are counted.
+            for digit in sequence:
+                if digit == 0:
+                    counter += 1
+                elif digit == 1:
+                    reducedList = reducedList + [counter]
+                    counter = 0
+            self.reduced = reducedList
+        # If user passed a value to reduced, then use this instead of calculating the reduced list. This was primarily used for debugging purposes.
+        elif reduced != None:
+            self.reduced = reduced
 
         #=== Find number of edges and vertices
         # number of edges
