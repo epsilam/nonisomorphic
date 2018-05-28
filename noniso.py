@@ -4,11 +4,10 @@ from itertools import permutations
 
 class Graph:
     '''
-    This class is instantiated with the binary list representation for each graph. 
+    This class is instantiated with the binary list representation for each graph. A graph is identified by its reduced list representation, denoted self.reduced. This is basically the lower triangle of its adjacency matrix squashed into one list, while the binary list representation is the reduced list expanded into stars-and-bars notation to make it easier to generate all graphs, as we can more efficiently generate all lists of arbitrary length containing an arbitrary number of 1s. 
     '''
 
     def __init__(self, binlist):
-        
         #=== Store the binary representation
         self.binaryRep = binlist
         
@@ -72,6 +71,7 @@ class Graph:
     def isomorphic(self, other):
         pass
 
+#Generate list of all labeled graphs with v vertices and e edges. (Note: generates ALL graphs, not those different up to isomorphism.)
 def allGraphs(v,e):
     binlength = int((v+1)*v/2 + e - 1)
     binsum    = int((v+1)*v/2 - 1)
@@ -81,14 +81,12 @@ def allGraphs(v,e):
         graphList += [graph]
     return graphList
 
-#Generate list of all graphs of v vertices and e edges which are non-isomorphic to eachother.
+#Generate list of all different undirected graphs (including multigraphs) of v vertices and e edges up to isomorphism.
 @lib.timer
 def nonIsomorphicGraphs(v, e):
     graphs = allGraphs(v,e)
-    isoClasses = [graphs[0].graphPermutations()]
-    # for each G1 in graphs, check that it is not equal to any permutation of any graph in the list. If not, then add it.
-    # For each G1, you need to ensure that if G1 is never in G2 for every G2, then G1 gets added to the list.
-    for G1 in graphs:
+    isoClasses = [graphs[0].graphPermutations()] #isoClasses contains permutations of each graph. All permutations of one graph are isomorphic to eachother, therefore isoClasses really contains each isomorphism class.
+    for G1 in graphs: # for each G1 in graphs, check that it is not equal to any permutation of any graph in the isoClasses. If not, then add it.
         breakVar = False
         for G2 in isoClasses:
             if G1.reduced in G2:
@@ -103,15 +101,6 @@ def nonIsomorphicGraphs(v, e):
             G1.prettyprint()
             print("\n")
     print(len(isoClasses), "non-isomorphic graphs")
-    # Issue: for some reason all the elements in allGraphs seem to be nonIsomorphic
-
-## HUGE OPTIMIZATION
-# Keep the permutations of the graphs in the non-isomorphic graph list. Therefore whenever you want to check if a new graph is isomorphic to any of the graphs in the list, you don't have to generate new permutations. You just have to check if the graph is equal to any of the permutations of the already checked non-isomorphic graphs.
-
-# This will require more memory but MUCH less time, because you are only generating new permutations when the graph is actually found to be nonisomorphic to each graph in the list.
-
-# In this case, the list of non-isomorphic graphs can instead be a list of sublists, where each sublist contains all the permutations of one graph. This makes it easier to sequentially check through all the permutations. These 'sublists' can also be generators.
 
 ## NEXT OPTIMIZATION:
-#CHECK LOOPS
-#ALSO CHECK THAT SORTING THE TWO REDUCED LISTS RESULTS IN THE SAME THING
+#If it doesn't take too much more time, it is possible to sort out the graph you are comparing and check that the numbers of edges between vertices match up. (e.g., if a graph G1 has a pair of vertices with 5 edges between then but another graph G2 has no pairs of vertices with 5 edges between them, then G1 and G2 are definitely not isomorphic. You can check this by sorting the reduced lists and making sure they are equal. If they are, then you can continue checking to see if the graph is equal to any of the (unsorted) permutations of the other graph.)
