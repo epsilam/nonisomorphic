@@ -4,8 +4,9 @@ from itertools import permutations
 
 class Graph:
     '''
-    This class is initialized with the binary list representation for each graph.
-    A graph is identified by its reduced list representation, denoted self.reduced.
+    This class is initialized either with the binary list representation or the reduced list representation for each graph.
+    If only a binary list representation is given, the reduced list is computed from it.
+    Each graph is identified by its reduced list representation, denoted self.reduced.
     This is basically the lower triangle of its adjacency matrix squashed into one list,
     while the binary list representation is the reduced list expanded into stars-and-bars
     notation to make it easier to generate all graphs, as we can more efficiently
@@ -15,7 +16,7 @@ class Graph:
     def __init__(self, binlist=None, reduced=None):
         #=== Store the binary representation
         self.binlist = binlist
-        
+
         #=== Determine reduced list representation
         if reduced == None and binlist != None:
             reducedList = []
@@ -36,8 +37,8 @@ class Graph:
         # number of edges
         self.size  = sum(self.reduced)
         # number of vertices
-        self.order = int((sqrt(1+8*len(self.reduced)) - 1)/2)
-    
+        self.order = int((sqrt(1+8*len(self.reduced)) - 1)/2) # this formula comes from the fact that the reduced list contains v(v+1)/2 elements where v is the number of vertices. We can find v using the quadratic formula
+
     def prettyprint(self):
         matrix = []
         for i in range(self.order):
@@ -45,10 +46,9 @@ class Graph:
         print('\n'.join([''.join(['{:4}'.format(item) for item in row]) for row in matrix]))
 
     #Permute a graph's reduced list according to a given permutation of its vertices.
-    def permute(self, permutation):
+    def permuteVertices(self, permutation):
         indexedReducedList = {}
-        countX = 0
-        countY = 0
+        countX,countY = 0,0
         for entry in self.reduced:
             indexedReducedList[(countX, countY)] = entry
             if countY < countX:
@@ -58,8 +58,7 @@ class Graph:
                 countY = 0
         permutedIndexedReducedList = {}
         for index in indexedReducedList:
-            x = permutation[index[0]]
-            y = permutation[index[1]]
+            x,y = permutation[index[0]], permutation[index[1]]
             permutedIndexedReducedList[(x,y)] = indexedReducedList[index]
         for index in permutedIndexedReducedList:
             if index[0] < index[1]:
@@ -74,13 +73,14 @@ class Graph:
     def graphPermutations(self):
         ps = []
         for p in permutations(range(self.order)):
-           ps += [self.permute(p)]
+           ps += [self.permuteVertices(p)]
         return ps
-    
+
     def isomorphic(self, other):
         pass
 
 #Generate list of all labeled graphs with v vertices and e edges. (Note: generates ALL graphs, not those different up to isomorphism.)
+#@lib.timer("allGraphs")
 def allGraphs(v,e):
     binlength = int((v+1)*v/2 + e - 1)
     binsum    = int((v+1)*v/2 - 1)
@@ -91,25 +91,21 @@ def allGraphs(v,e):
     return graphList
 
 #Generate list of all different undirected graphs (including multigraphs) of v vertices and e edges up to isomorphism.
-@lib.timer
+@lib.timer() #("nonIsomorphicGraphs")
 def nonIsomorphicGraphs(v, e):
     graphs = allGraphs(v,e)
-    isoClasses = [graphs[0].graphPermutations()] #isoClasses contains permutations of each graph. All permutations of one graph are isomorphic to eachother, therefore isoClasses really contains each isomorphism class.
-    for G1 in graphs: # for each G1 in graphs, check that it is not equal to any permutation of any graph in the isoClasses. If not, then add it.
-        breakVar = False
+    isoClasses = [graphs[0].graphPermutations()] #isoClasses contains sets of permutations of each graph. since the set of all permutations of a graph's vertices is its isomorphism class, isoClasses contains each isomorphism class.
+    for G1 in graphs: # for each G1 in graphs, if G1 not equal to any permutation of any graph in isoClasses, add its permutations to isoClasses
         for G2 in isoClasses:
             if G1.reduced in G2:
-                # set breakVar to True if isomorphism detected
-                breakVar = True
                 break
-        if breakVar == True:
-            continue
-        else:
+        else: #this block only runs if the inner loop above exited normally; i.e., if no isomorphism was found.
             isoClasses += [G1.graphPermutations()]
-            print(G1.reduced)
-            G1.prettyprint()
-            print("\n")
-    print(len(isoClasses), "non-isomorphic graphs")
+            print(G1.reduced); G1.prettyprint(); print("\n")
+        continue
+    print(len(isoClasses), "non-isomorphic graphs found.")
 
 ## NEXT OPTIMIZATION:
 #If it doesn't take too much more time, it is possible to sort out the graph you are comparing and check that the numbers of edges between vertices match up. (e.g., if a graph G1 has a pair of vertices with 5 edges between then but another graph G2 has no pairs of vertices with 5 edges between them, then G1 and G2 are definitely not isomorphic. You can check this by sorting the reduced lists and making sure they are equal. If they are, then you can continue checking to see if the graph is equal to any of the (unsorted) permutations of the other graph.)
+
+#This optimization can go even further. When generating the binary lists which will eventually be converted into reduced lists, one knows that if the number of zeroes in the two binary lists differ, then clearly the resultant graphs cannot be isomorphic.
