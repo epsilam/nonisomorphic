@@ -91,7 +91,7 @@ def allGraphs(v,e):
     return graphList
 
 #Generate list of all different undirected graphs (including multigraphs) of v vertices and e edges up to isomorphism.
-@lib.timer() #("nonIsomorphicGraphs")
+@lib.timer
 def nonIsomorphicGraphs(v, e):
     graphs = allGraphs(v,e)
     isoClasses = [graphs[0].graphPermutations()] #isoClasses contains sets of permutations of each graph. since the set of all permutations of a graph's vertices is its isomorphism class, isoClasses contains each isomorphism class.

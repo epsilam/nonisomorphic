@@ -4,19 +4,14 @@ A library of some useful functions that don't necessarily have anything to do wi
 
 #Wrapper function for timing purposes.
 import timeit
-def timer(label=None):
-    def decorate(func):
-        def wrapper(*args, **kwargs):
-            before = timeit.default_timer()
-            returnVal = func(*args, **kwargs)
-            after = timeit.default_timer()
-            if label == None:
-                print('Elapsed:', after - before, "seconds.")
-            elif isinstance(label, str):
-                print('Elapsed:', after - before, "seconds.", '(' + label + ')')
-            return returnVal
-        return wrapper
-    return decorate
+def timer(func):
+    def f(*args, **kwargs):
+        before = timeit.default_timer()
+        returnVal = func(*args, **kwargs)
+        after = timeit.default_timer()
+        print('Elapsed:', after - before, 'seconds.', '(' + func.__name__ + ')')
+        return returnVal
+    return f
 
 #The functions indexOfLastOne and binarySequences are slightly modified based on the work of a kind reddit user who did not ask to be credited personally.
 
