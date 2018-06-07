@@ -34,16 +34,14 @@ class Graph:
             self.reduced = reduced
 
         #=== Create adjacency dictionary: a dictionary where each key represents a pair of vertices (labeled 0,1,2,...), and the value of each key represents the number of edges between them.
-        indexedReducedList = {}
-        countX,countY = 0,0
-        for entry in self.reduced:
-            indexedReducedList[(countX, countY)] = entry
-            if countY < countX:
-                countY += 1
-            elif countY == countX:
-                countX += 1
-                countY = 0
-        self.adjacencyDict = indexedReducedList
+        self.adjacencyDict, v1, v2 = {}, 0, 0
+        for edges in self.reduced:
+            self.adjacencyDict[(v1, v2)] = edges
+            if v2 < v1:
+                v2 += 1
+            elif v2 == v1:
+                v1 += 1
+                v2 = 0
 
         #=== Find number of edges and vertices
         # number of edges
@@ -93,18 +91,21 @@ def allGraphs(v,e):
     return graphList
 
 #Generate list of all different undirected graphs (including multigraphs) of v vertices and e edges up to isomorphism.
+#Set call with pr=True to print all the graphs, and pr=False to hide the graphs.
 @lib.timer
-def nonIsomorphicGraphs(v, e):
+def nonIsomorphicGraphs(v, e, pr=False):
     graphs = allGraphs(v,e)
-    print(graphs[0].reduced); graphs[0].prettyprint(); print("\n")
     isoClasses = [graphs[0].graphPermutations()] #isoClasses contains sets of permutations of each graph. since the set of all permutations of a graph's vertices is its isomorphism class, isoClasses contains each isomorphism class.
+    if pr == True:
+        print(graphs[0].reduced); graphs[0].prettyprint(); print("\n")
     for G1 in graphs: # for each G1 in graphs, if G1 not equal to any permutation of any graph in isoClasses, add its permutations to isoClasses
         for G2 in isoClasses:
             if G1.reduced in G2:
                 break
         else: #this block only runs if the inner loop above exited normally; i.e., if no isomorphism was found.
             isoClasses += [G1.graphPermutations()]
-            print(G1.reduced); G1.prettyprint(); print("\n")
+            if pr == True:
+                print(G1.reduced); G1.prettyprint(); print("\n")
         continue
     print(len(isoClasses), "non-isomorphic graphs found.")
 
