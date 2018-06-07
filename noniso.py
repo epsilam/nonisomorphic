@@ -1,6 +1,7 @@
 import srclib as lib
 from numpy import sqrt
 from itertools import permutations
+from collections import Counter
 
 class Graph:
     '''
@@ -19,40 +20,31 @@ class Graph:
 
         #=== Determine reduced list representation
         if reduced == None and binlist != None:
-            reducedList = []
-            counter = 0
+            self.reduced, k = [], 0
             sequence = self.binlist + [1] #Since it counts 0s before each 1, we need to make sure there is a 1 at the end so that the last couple of 0s are counted.
             for digit in sequence:
-                if digit == 0:
-                    counter += 1
-                elif digit == 1:
-                    reducedList = reducedList + [counter]
-                    counter = 0
-            self.reduced = reducedList
+                if digit == 0: k += 1
+                elif digit == 1: self.reduced, k = self.reduced + [k], 0
+
         # If user passed a value to reduced, then use this instead of calculating the reduced list. This was primarily used for debugging purposes.
-        elif reduced != None:
-            self.reduced = reduced
+        elif reduced != None: self.reduced = reduced
 
         #=== Create adjacency dictionary: a dictionary where each key represents a pair of vertices (labeled 0,1,2,...), and the value of each key represents the number of edges between them.
         self.adjacencyDict, v1, v2 = {}, 0, 0
         for edges in self.reduced:
             self.adjacencyDict[(v1, v2)] = edges
-            if v2 < v1:
-                v2 += 1
-            elif v2 == v1:
-                v1 += 1
-                v2 = 0
+            if v2 < v1: v2 += 1
+            elif v2 == v1: v1 += 1; v2 = 0
 
-        #=== Find number of edges and vertices
-        # number of edges
-        self.size  = sum(self.reduced)
-        # number of vertices
-        self.order = int((sqrt(1+8*len(self.reduced)) - 1)/2) # this formula comes from the fact that the reduced list contains v(v+1)/2 elements where v is the number of vertices. We can find v using the quadratic formula
+        #=== Initialize variable graphPermutations: not computed now to save resources. IMPORTANT: Before using, make sure to call self.createGraphPermutations()
+        self.graphPermutations = []
+
+        #=== Initialize variable reducedSorted: computed in self.sort() To efficiently verify that two graphs are non-isomorphic, we can check if their sorted reduced list representations differ. If they do, they they are definitely non-isomorphic.
+        self.reducedSorted = None
 
     def prettyprint(self):
         matrix = []
-        for i in range(self.order):
-            matrix += [self.reduced[int((i+1)*i/2):int((i+2)*(i+1)/2)]]
+        for i in range(self.order): matrix += [self.reduced[int((i+1)*i/2):int((i+2)*(i+1)/2)]]
         print('\n'.join([''.join(['{:4}'.format(item) for item in row]) for row in matrix]))
 
     #Permute a graph's reduced list according to a given permutation of its vertices.
@@ -70,14 +62,13 @@ class Graph:
         return permutedReducedList
 
     # Generate all permutations of vertices of this graph (i.e., all graphs in reduced list form which are isomorphic to self)
-    def graphPermutations(self):
-        ps = []
-        for p in permutations(range(self.order)):
-           ps += [self.permuteVertices(p)]
-        return ps
+    def createGraphPermutations(self):
+        numberOfVertices = int((sqrt(1+8*len(self.reduced)) - 1)/2) # calculated via quadratic formula; given v vertices, reduced list contains v(v+1)/2 elements
+        for p in permutations(range(numberOfVertices)):
+            self.graphPermutations += [self.permuteVertices(p)]
 
-    def isomorphic(self, other):
-        pass
+    def sort(self):
+        self.reducedSorted = Counter(self.reduced)
 
 #Generate list of all labeled graphs with v vertices and e edges. (Note: generates ALL graphs, not those different up to isomorphism.)
 #@lib.timer("allGraphs")
@@ -95,18 +86,23 @@ def allGraphs(v,e):
 @lib.timer
 def nonIsomorphicGraphs(v, e, pr=False):
     graphs = allGraphs(v,e)
-    isoClasses = [graphs[0].graphPermutations()] #isoClasses contains sets of permutations of each graph. since the set of all permutations of a graph's vertices is its isomorphism class, isoClasses contains each isomorphism class.
+    graphs[0].createGraphPermutations()
+    graphs[0].sort()
+    isoClasses = [graphs[0]] # Since isomorphism is an equivalence relation, each isomorphism class can be represented by any of the graphs in it. Thus, if we find a new graph which is non-isomorphic to each permutation of each existing graph in isoClasses, it must be a member of a new isomorphism class.
     if pr == True:
         print(graphs[0].reduced); graphs[0].prettyprint(); print("\n")
     for G1 in graphs: # for each G1 in graphs, if G1 not equal to any permutation of any graph in isoClasses, add its permutations to isoClasses
+        G1.sort()
         for G2 in isoClasses:
-            if G1.reduced in G2:
+            if G1.reducedSorted != G2.reducedSorted:
+                continue
+            if G1.reduced in G2.graphPermutations:
                 break
         else: #this block only runs if the inner loop above exited normally; i.e., if no isomorphism was found.
-            isoClasses += [G1.graphPermutations()]
+            G1.createGraphPermutations()
+            isoClasses += [G1]
             if pr == True:
                 print(G1.reduced); G1.prettyprint(); print("\n")
-        continue
     print(len(isoClasses), "non-isomorphic graphs found.")
 
 ## NEXT OPTIMIZATION:
