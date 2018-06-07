@@ -33,6 +33,18 @@ class Graph:
         elif reduced != None:
             self.reduced = reduced
 
+        #=== Create adjacency dictionary: a dictionary where each key represents a pair of vertices (labeled 0,1,2,...), and the value of each key represents the number of edges between them.
+        indexedReducedList = {}
+        countX,countY = 0,0
+        for entry in self.reduced:
+            indexedReducedList[(countX, countY)] = entry
+            if countY < countX:
+                countY += 1
+            elif countY == countX:
+                countX += 1
+                countY = 0
+        self.adjacencyDict = indexedReducedList
+
         #=== Find number of edges and vertices
         # number of edges
         self.size  = sum(self.reduced)
@@ -47,26 +59,16 @@ class Graph:
 
     #Permute a graph's reduced list according to a given permutation of its vertices.
     def permuteVertices(self, permutation):
-        indexedReducedList = {}
-        countX,countY = 0,0
-        for entry in self.reduced:
-            indexedReducedList[(countX, countY)] = entry
-            if countY < countX:
-                countY += 1
-            elif countY == countX:
-                countX += 1
-                countY = 0
-        permutedIndexedReducedList = {}
-        for index in indexedReducedList:
-            x,y = permutation[index[0]], permutation[index[1]]
-            permutedIndexedReducedList[(x,y)] = indexedReducedList[index]
-        for index in permutedIndexedReducedList:
-            if index[0] < index[1]:
-                permutedIndexedReducedList[(index[1],index[0])] = permutedIndexedReducedList[index]
-                del permutedIndexedReducedList[index]
+        permutedAdjacencyDict = {}
+        for (v1,v2), numberOfEdges in self.adjacencyDict.items():
+            permutedAdjacencyDict[(permutation[v1],permutation[v2])] = numberOfEdges
+        for (v1,v2), numberOfEdges in permutedAdjacencyDict.items():
+            if v1 < v2:
+                permutedAdjacencyDict[(v2,v1)] = numberOfEdges
+                del permutedAdjacencyDict[(v1,v2)]
         permutedReducedList = []
-        for index in sorted(permutedIndexedReducedList):
-            permutedReducedList += [permutedIndexedReducedList[index]]
+        for index in sorted(permutedAdjacencyDict):
+            permutedReducedList += [permutedAdjacencyDict[index]]
         return permutedReducedList
 
     # Generate all permutations of vertices of this graph (i.e., all graphs in reduced list form which are isomorphic to self)
