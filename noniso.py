@@ -96,6 +96,7 @@ def allGraphs(v,e):
 @lib.timer
 def nonIsomorphicGraphs(v, e):
     graphs = allGraphs(v,e)
+    print(graphs[0].reduced); graphs[0].prettyprint(); print("\n")
     isoClasses = [graphs[0].graphPermutations()] #isoClasses contains sets of permutations of each graph. since the set of all permutations of a graph's vertices is its isomorphism class, isoClasses contains each isomorphism class.
     for G1 in graphs: # for each G1 in graphs, if G1 not equal to any permutation of any graph in isoClasses, add its permutations to isoClasses
         for G2 in isoClasses:
