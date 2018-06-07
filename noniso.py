@@ -19,7 +19,7 @@ class Graph:
         self.binlist = binlist
 
         #=== Determine reduced list representation
-        if reduced == None and binlist != None:
+        if reduced is None and binlist is not None:
             self.reduced, k = [], 0
             sequence = self.binlist + [1] #Since it counts 0s before each 1, we need to make sure there is a 1 at the end so that the last couple of 0s are counted.
             for digit in sequence:
@@ -27,7 +27,7 @@ class Graph:
                 elif digit == 1: self.reduced, k = self.reduced + [k], 0
 
         # If user passed a value to reduced, then use this instead of calculating the reduced list. This was primarily used for debugging purposes.
-        elif reduced != None: self.reduced = reduced
+        elif reduced is not None: self.reduced = reduced
 
         #=== Create adjacency dictionary: a dictionary where each key represents a pair of vertices (labeled 0,1,2,...), and the value of each key represents the number of edges between them.
         self.adjacencyDict, v1, v2 = {}, 0, 0
@@ -90,7 +90,8 @@ def nonIsomorphicGraphs(v, e, pr=False):
     graphs[0].sort()
     isoClasses = [graphs[0]] # Since isomorphism is an equivalence relation, each isomorphism class can be represented by any of the graphs in it. Thus, if we find a new graph which is non-isomorphic to each permutation of each existing graph in isoClasses, it must be a member of a new isomorphism class.
     if pr == True:
-        print(graphs[0].reduced); graphs[0].prettyprint(); print("\n")
+        #print(graphs[0].reduced); graphs[0].prettyprint(); print("\n")
+        print(graphs[0].adjacencyDict)
     for G1 in graphs: # for each G1 in graphs, if G1 not equal to any permutation of any graph in isoClasses, add its permutations to isoClasses
         G1.sort()
         for G2 in isoClasses:
@@ -102,7 +103,8 @@ def nonIsomorphicGraphs(v, e, pr=False):
             G1.createGraphPermutations()
             isoClasses += [G1]
             if pr == True:
-                print(G1.reduced); G1.prettyprint(); print("\n")
+                #print(G1.reduced); G1.prettyprint(); print("\n")
+                print(G1.adjacencyDict)
     print(len(isoClasses), "non-isomorphic graphs found.")
 
 ## NEXT OPTIMIZATION:
