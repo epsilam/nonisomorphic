@@ -15,11 +15,14 @@ class Graph:
     '''
 
     def __init__(self, binlist=None, reduced=None):
-        #=== Store the binary representation
-        self.binlist = binlist
 
-        #=== Determine reduced list representation
+        #=== Check that at least one of binlist or reduced has been passed.
+        if binlist is None and reduced is None:
+            raise "No arguments passed. User must provide either binary list representation or reduced list representation."
+
+        #=== Store the binary list representation and determine reduced list representation.
         if reduced is None and binlist is not None:
+            self.binlist = binlist
             self.reduced, k = [], 0
             sequence = self.binlist + [1] #Since it counts 0s before each 1, we need to make sure there is a 1 at the end so that the last couple of 0s are counted.
             for digit in sequence:
