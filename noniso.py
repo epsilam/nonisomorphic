@@ -96,9 +96,7 @@ def nonIsomorphicGraphs(v: int, e: int, pr=False):
     firstGraph.sort()
     isoClasses = [firstGraph] # Since isomorphism is an equivalence relation, each isomorphism class can be represented by any of the graphs in it. Thus, if we find a new graph which is non-isomorphic to each permutation of each existing graph in isoClasses, it must be a member of a new isomorphism class.
     graphCounter = 1
-    if pr == True:
-        print(firstGraph.reduced, "Count:", graphCounter)
-
+    if pr == True: print(firstGraph.reduced, "Count:", graphCounter)
     for G1 in graphs: # for each G1 in graphs, if G1 not equal to any permutation of any graph in isoClasses, add its permutations to isoClasses
         G1.sort()
         for G2 in isoClasses:
@@ -110,7 +108,5 @@ def nonIsomorphicGraphs(v: int, e: int, pr=False):
             G1.createGraphPermutations()
             isoClasses += [G1]
             graphCounter += 1
-            if pr == True:
-                #print(G1.reduced); G1.prettyprint(); print("\n")
-                print(G1.reduced, "Count:", graphCounter)
+            if pr == True: print(G1.reduced, "Count:", graphCounter)
     print(graphCounter, "non-isomorphic graphs found.")
