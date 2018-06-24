@@ -78,23 +78,27 @@ class Graph:
 def allGraphs(v,e):
     binlength = int((v+1)*v/2 + e - 1)
     binsum    = int((v+1)*v/2 - 1)
-    graphList = []
-    for binlist in lib.binarySequences(binlength, binsum):
+    binSeqs   = lib.binarySequences(binlength, binsum)
+    for binlist in binSeqs:
         graph = Graph(binlist)
-        graphList += [graph]
-    return graphList
+        yield graph
 
 #Generate list of all different undirected graphs (including multigraphs) of v vertices and e edges up to isomorphism.
 #Set call with pr=True to print all the graphs, and pr=False to hide the graphs.
 @lib.timer
-def nonIsomorphicGraphs(v, e, pr=False):
+def nonIsomorphicGraphs(v: int, e: int, pr=False):
+    if v < 1: raise Exception("Vertex count too low. At least 1 vertex required.")
+    if e < 0: raise Exception("Edge count too low. At least 0 edges required.")
+
     graphs = allGraphs(v,e)
-    graphs[0].createGraphPermutations()
-    graphs[0].sort()
-    isoClasses = [graphs[0]] # Since isomorphism is an equivalence relation, each isomorphism class can be represented by any of the graphs in it. Thus, if we find a new graph which is non-isomorphic to each permutation of each existing graph in isoClasses, it must be a member of a new isomorphism class.
+    firstGraph = next(graphs)
+    firstGraph.createGraphPermutations()
+    firstGraph.sort()
+    isoClasses = [firstGraph] # Since isomorphism is an equivalence relation, each isomorphism class can be represented by any of the graphs in it. Thus, if we find a new graph which is non-isomorphic to each permutation of each existing graph in isoClasses, it must be a member of a new isomorphism class.
+    graphCounter = 1
     if pr == True:
-        #print(graphs[0].reduced); graphs[0].prettyprint(); print("\n")
-        print(graphs[0].adjacencyDict)
+        print(firstGraph.reduced, "Count:", graphCounter)
+
     for G1 in graphs: # for each G1 in graphs, if G1 not equal to any permutation of any graph in isoClasses, add its permutations to isoClasses
         G1.sort()
         for G2 in isoClasses:
@@ -105,12 +109,8 @@ def nonIsomorphicGraphs(v, e, pr=False):
         else: #this block only runs if the inner loop above exited normally; i.e., if no isomorphism was found.
             G1.createGraphPermutations()
             isoClasses += [G1]
+            graphCounter += 1
             if pr == True:
                 #print(G1.reduced); G1.prettyprint(); print("\n")
-                print(G1.adjacencyDict)
-    print(len(isoClasses), "non-isomorphic graphs found.")
-
-## NEXT OPTIMIZATION:
-#If it doesn't take too much more time, it is possible to sort out the graph you are comparing and check that the numbers of edges between vertices match up. (e.g., if a graph G1 has a pair of vertices with 5 edges between then but another graph G2 has no pairs of vertices with 5 edges between them, then G1 and G2 are definitely not isomorphic. You can check this by sorting the reduced lists and making sure they are equal. If they are, then you can continue checking to see if the graph is equal to any of the (unsorted) permutations of the other graph.)
-
-#This optimization can go even further. When generating the binary lists which will eventually be converted into reduced lists, one knows that if the number of zeroes in the two binary lists differ, then clearly the resultant graphs cannot be isomorphic.
+                print(G1.reduced, "Count:", graphCounter)
+    print(graphCounter, "non-isomorphic graphs found.")
