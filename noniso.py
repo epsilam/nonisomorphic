@@ -18,7 +18,7 @@ class Graph:
 
         #=== Check that at least one of binlist or reduced has been passed.
         if binlist is None and reduced is None:
-            raise "No arguments passed. User must provide either binary list representation or reduced list representation."
+            raise Exception("No arguments passed. User must provide either binary list representation or reduced list representation.")
 
         #=== Store the binary list representation and determine reduced list representation.
         if reduced is None and binlist is not None:
